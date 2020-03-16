@@ -1,7 +1,9 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { Subject, BehaviorSubject } from 'rxjs'
 import { scan, map } from 'rxjs/operators'
 import { observe } from './hoc'
+import * as Actions from './store/Actions'
 
 const CountView = props => {
   const { count, increment, decrement } = props
@@ -55,5 +57,18 @@ const CounterByObserve = observe(
   0
 )
 
-export { CounterByObserve }
+function mapStateToProps(state, ownProps) {
+  return {
+    count: state.count
+  }
+}
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    increment: () => dispatch(Actions.increment()),
+    decrement: () => dispatch(Actions.decrement())
+  }
+}
+const CounterWithRedux = connect(mapStateToProps, mapDispatchToProps)(CountView)
+
+export { CounterByObserve, CounterWithRedux }
 export default RxCounter
