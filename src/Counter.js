@@ -1,6 +1,7 @@
 import React from 'react'
-import { Subject } from 'rxjs'
-import { scan } from 'rxjs/operators'
+import { Subject, BehaviorSubject } from 'rxjs'
+import { scan, map } from 'rxjs/operators'
+import { observe } from './hoc'
 
 const CountView = props => {
   const { count, increment, decrement } = props
@@ -37,4 +38,22 @@ class RxCounter extends React.Component {
   }
 }
 
+const CounterByObserve = observe(
+  CountView,
+  () => {
+    // 上游未吐出数据之前，下游会收到默认值0
+    const cnt$ = new BehaviorSubject(0)
+    return cnt$.pipe(
+      scan((acc, cur) => acc + cur, 0),
+      map(val => ({
+        count: val,
+        increment: () => cnt$.next(1), // 这么写的话，每一次状态的更新都生成新的函数？？
+        decrement: () => cnt$.next(-1)
+      }))
+    )
+  },
+  0
+)
+
+export { CounterByObserve }
 export default RxCounter
