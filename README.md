@@ -22,6 +22,12 @@ Observable 可以发送`next`、`error` 、`complete`共三种类型的通知，
 ctx.clearRect(x, y, width, height)
 ```
 
+- `ctx.beginPath()`是为了清空子路径列表，开始一个新路径
+- `ctx.closePath()`是为了将笔点返回路径的起始点
+- `ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise)` 绘制圆弧路径，x,y 为圆心坐标
+- `ctx.rect(x,y,width,height)`创建矩形路径，起点为(x,y)，尺寸为`width`和`height`，后续可以使用 `fill()`或者`stroke()`进行填充或描边
+- `ctx.fillRect(x, y, width, height)` 使用定义好的`ctx.fillStyle`对起点为`(x,y)`，尺寸为`(width,height)`的矩形进行填充
+
 #### 4. KeyboardEvent
 
 - 有`keydown`、`keypress`、`keyup`事件可用
@@ -35,7 +41,12 @@ ctx.clearRect(x, y, width, height)
 - `combineLatest(obs1$, obs2$)`，当某一个上游数据流产生数据时，就会合并所有上游数据流中的最新数据，会有数据重复使用的情况.
   相较于 withLatestFrom, combineLatest 会产生 glitch 的问题，数据重复
 
-- `retryWhen`操作符接收一个函数作为参数，这个函数返回的 Observable 对象会决定什么时机重新订阅上游
+- `retryWhen`操作符接收一个函数作为参数，当上游传递一个错误时，这个函数返回的 Observable 对象会决定什么时机重新订阅上游
 - `distinctUntilChanged`操作符会过滤上游数据流，当前数据和前一个数据不一致时才会传递给下游
+- `merge`静态函数用于合并所有上游数据流，当所有的上游数据流都完结时，下游数据流会完结，但是一旦有一个上游数据流抛出一个错误，则下游会立刻接收到这个错误，则数据流会因为错误而停止。
 
-* 技巧： 利⽤异常处理之后的重试来控制逻辑流程
+* 使用了 Subject 的 既是 observable 又是 observer 的特性
+  - 作为 observable 可以吐出数据流，可以被订阅
+  - 作为 observer，拥有 `next(v)`、`error()`、`complete()`三个方法，调用`next(v)`则可以给`Subject`喂一个新数据，且这个数据会被多播给注册监听了`Subject`的 observer
+
+- 技巧： 利⽤异常处理之后的重试来控制逻辑流程

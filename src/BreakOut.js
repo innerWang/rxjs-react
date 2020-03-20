@@ -47,8 +47,6 @@ class BreakOut extends React.Component {
     fromEvent(document, 'keyup').pipe(mapTo(0))
   ).pipe(distinctUntilChanged())
 
-  restart = React.createRef()
-
   // 用于产生球拍位置的数据流，之所以不直接生成一个，是每次游戏开始时都有一个新的数据流
   createPaddle$ = ticker$ => {
     return ticker$.pipe(
@@ -250,11 +248,11 @@ class BreakOut extends React.Component {
     this.drawScore(state.score)
     if (state.ball.position.y > this.canvasEle.height - BALL_RADIUS) {
       this.drawGameOver('GAME OVER')
-      this.restart.current.error('game over')
+      this.restart.error('game over')
     }
     if (state.bricks.length === 0) {
       this.drawGameOver('Congradulations!')
-      this.restart.current.error('cong')
+      this.restart.error('cong')
     }
   }
 
@@ -273,12 +271,12 @@ class BreakOut extends React.Component {
 
     new Observable(observer => {
       this.drawIntro()
-      this.restart.current = new Subject()
+      this.restart = new Subject()
       const paddle$ = this.createPaddle$(this.ticker$)
       const state$ = this.createState$(this.ticker$, paddle$)
       merge(
         this.ticker$.pipe(withLatestFrom(paddle$, state$)),
-        this.restart.current
+        this.restart
       ).subscribe(observer)
     })
       .pipe(retryWhen(err$ => err$.pipe(delay(3000))))
