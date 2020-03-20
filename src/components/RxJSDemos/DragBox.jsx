@@ -1,23 +1,11 @@
-import React, { useEffect } from 'react'
-import { fromEvent } from 'rxjs'
-import { map, switchMap, takeUntil, tap } from 'rxjs/operators'
+import React, { useEffect, useState } from 'react'
+import { fromEvent, of } from 'rxjs'
+import { map, switchMap, takeUntil, tap, delay } from 'rxjs/operators'
+
+import styles from './DragBox.module.scss'
 
 const CONTAINER_SIZE = 300
 const BOX_SIZE = 30
-
-const boxContainerStyle = {
-  width: CONTAINER_SIZE,
-  height: CONTAINER_SIZE,
-  border: '1px solid #333',
-  overflow: 'hidden'
-}
-
-const boxStyle = {
-  width: BOX_SIZE,
-  height: BOX_SIZE,
-  background: '#3cd',
-  cursor: 'pointer'
-}
 
 const getTranslateSize = element => {
   const style = getComputedStyle(element)
@@ -41,17 +29,25 @@ const setTranslate = (ele, range) => {
 }
 
 const DragBox = () => {
+  const [hasBlink, setHasBlink] = useState(false)
   useEffect(() => {
     const boxEle = document.getElementById('box')
     const wrapEle = document.getElementById('boxWrap')
     fromEvent(boxEle, 'mousedown')
       .pipe(
-        map(e => ({ pos: getTranslateSize(boxEle), event: e })),
+        switchMap(e =>
+          /*  按住1s内没有动作 才会吐出数据，move动作才可开始 */
+          of({ pos: getTranslateSize(boxEle), event: e }).pipe(
+            delay(1000),
+            takeUntil(fromEvent(wrapEle, 'mousemove'))
+          )
+        ),
         switchMap(initialState => {
           const {
             pos: initialTrans,
             event: { clientX, clientY }
           } = initialState
+          setHasBlink(true)
           return fromEvent(wrapEle, 'mousemove').pipe(
             map(event => ({
               x: Math.max(
@@ -69,8 +65,9 @@ const DragBox = () => {
                 0
               )
             })),
-            tap(val => console.log(val)),
-            takeUntil(fromEvent(wrapEle, 'mouseup'))
+            takeUntil(
+              fromEvent(wrapEle, 'mouseup').pipe(tap(() => setHasBlink(false)))
+            )
           )
         })
       )
@@ -78,8 +75,11 @@ const DragBox = () => {
   }, [])
 
   return (
-    <div style={boxContainerStyle} id="boxWrap">
-      <div style={boxStyle} id="box" />
+    <div id="boxWrap" className={styles.wrap}>
+      <div
+        id="box"
+        className={`${styles.box} ${hasBlink ? styles.blink : ''}`}
+      />
     </div>
   )
 }
