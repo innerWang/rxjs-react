@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Subject, BehaviorSubject } from 'rxjs'
 import { scan, map } from 'rxjs/operators'
 import { observe } from './hoc'
-import * as Actions from './store/Actions'
+import * as Actions from '../store/Actions'
 
 const CountView = props => {
   const { count, increment, decrement } = props
