@@ -1,0 +1,23 @@
+.container {
+  $container-size: 500;
+  $box-size: 30;
+  $colours: #f00 #3ed #769 #183 #25f #a92 #7f3;
+
+  position: relative;
+  width: #{$container-size}px;
+  height: #{$container-size}px;
+  box-shadow: 0 0 4px rgba($color: #000000, $alpha: 0.1);
+
+  .colorbox {
+    position: absolute;
+    width: #{$box-size}px;
+    height: #{$box-size}px;
+  }
+
+  @for $var from 1 through 7 {
+    .colorbox:nth-child(#{$var}) {
+      background: nth($colours, $var);
+      z-index: #{100 - $var};
+    }
+  }
+}
