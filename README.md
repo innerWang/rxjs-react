@@ -3,7 +3,7 @@
 - 把 increment 和 decrement 的功能转换为数据流中的数据
 - 把数据流中的数据转化为对组件状态的修改
 
-所以使用了中间宿主 `subject`
+所以使用了中间宿主 `subject`。
 
 由于 state 的状态是所有中间数据的总和，所以使用 `scan` 操作符来收集截止当前的所有数据的总和
 
@@ -19,7 +19,7 @@ Observable 可以发送`next`、`error` 、`complete`共三种类型的通知，
 
 ```js
 // 设置指定矩形区域内（以(x, y)为起点，范围是(width, height)）所有像素变成透明，并擦除之前绘制的所有内容的方法。
-ctx.clearRect(x, y, width, height)
+ctx.clearRect(x, y, width, height);
 ```
 
 - `ctx.beginPath()`是为了清空子路径列表，开始一个新路径
